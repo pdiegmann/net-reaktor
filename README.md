@@ -2,7 +2,8 @@ net-reaktor
 ===========
 
 .NET-library for reaktor.io
-Supports
+
+Supports:
 - .NET Framework (4.5+)
 - Silverlight (4+)
 - Windows Phone (7+)

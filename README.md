@@ -8,4 +8,6 @@ Supports:
 - Silverlight (4+)
 - Windows Phone (7+)
 - .NET for Windows App Store
-- Xbox 360
+
+
+Support for Xbox 360 will come shortly.

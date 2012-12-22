@@ -5,7 +5,7 @@
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4aa7884f-df23-40f9-bdb0-b524b910a127}</ProjectGuid>
+    <ProjectGuid>{4AA7884F-DF23-40F9-BDB0-B524B910A127}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>reaktor</RootNamespace>
@@ -36,8 +36,9 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="reaktor.cs" />
+    <Compile Include="reaktorRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -47,5 +48,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-
 </Project>

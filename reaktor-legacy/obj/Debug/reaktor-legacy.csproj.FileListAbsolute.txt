@@ -1,0 +1,5 @@
+Z:\Code\net-reaktor\reaktor-legacy\bin\Debug\reaktor-legacy.dll
+Z:\Code\net-reaktor\reaktor-legacy\bin\Debug\reaktor-legacy.pdb
+Z:\Code\net-reaktor\reaktor-legacy\obj\Debug\reaktor-legacy.csprojResolveAssemblyReference.cache
+Z:\Code\net-reaktor\reaktor-legacy\obj\Debug\reaktor-legacy.dll
+Z:\Code\net-reaktor\reaktor-legacy\obj\Debug\reaktor-legacy.pdb

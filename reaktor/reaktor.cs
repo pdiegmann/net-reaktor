@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Security;
 using System.Net;
@@ -10,10 +9,9 @@ namespace reaktor
     public class reaktor
     {
         private Boolean _isLoggedIn = false;
-        private Boolean _isLoggingEnabled = false;
 
         private String _baseUrl = "http://api.reaktor.io";
-        
+
         private String _mail = String.Empty;
         private String _password = String.Empty;
         private String _token = String.Empty;
@@ -52,17 +50,22 @@ namespace reaktor
         }
         public Boolean login(String mail, String password, Boolean safeMode)
         {
+            if (String.IsNullOrEmpty(mail) || String.IsNullOrEmpty(password))
+            {
+                return false;
+            }
+
             Dictionary<String, String> dict = new Dictionary<String, String>();
 
             dict.Add("mail", mail);
             dict.Add("pass", MD5Core.GetHashString(password, Encoding.UTF8).ToLower());
 
-            reaktorRequest req = null; 
+            reaktorRequest req = null;
             if (safeMode)
                 req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict));
             else
                 req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict), this.loginCallback);
-            
+
             req.run();
 
             if (safeMode)
@@ -74,7 +77,10 @@ namespace reaktor
                 if (!ok)
                     throw new Exception(req.result["reason"]);
                 else
+                {
                     _token = req.result["token"];
+                    _isLoggedIn = true;
+                }
 
                 return ok;
             }
@@ -95,7 +101,7 @@ namespace reaktor
             }
         }
 
-        public void trigger(String trigger) 
+        public void trigger(String trigger)
         {
             this.trigger(trigger, null, false);
         }
@@ -112,6 +118,12 @@ namespace reaktor
 
         public Boolean trigger(String trigger, Dictionary<String, String> parameters, Boolean safeMode)
         {
+            if (!_isLoggedIn)
+            {
+                this.login();
+                return false;
+            }
+
             Dictionary<String, String> dict = new Dictionary<String, String>();
             dict.Add("token", _token);
             dict.Add("client", "net");
@@ -124,7 +136,7 @@ namespace reaktor
                 req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict));
             else
                 req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict), triggerCallback);
-            
+
             req.run();
 
             if (safeMode)
@@ -146,7 +158,9 @@ namespace reaktor
             Boolean ok = jsonResponse["ok"] == "true" ? true : false;
 
             if (!ok)
-                throw new Exception(jsonResponse["reason"]);
+                triggerFailed(jsonResponse["reason"]);
+            else
+                triggerSucceded();
         }
     }
 }

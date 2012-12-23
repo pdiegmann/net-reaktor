@@ -9,7 +9,6 @@ namespace reaktor
     public class reaktor
     {
         private Boolean _isLoggedIn = false;
-        private Boolean _isLoggingEnabled = false;
 
         private String _baseUrl = "http://api.reaktor.io";
         
@@ -51,6 +50,11 @@ namespace reaktor
         }
         public Boolean login(String mail, String password, Boolean safeMode)
         {
+            if (String.IsNullOrEmpty(mail) || String.IsNullOrEmpty(password))
+            {
+                return false;
+            }
+
             Dictionary<String, String> dict = new Dictionary<String, String>();
 
             dict.Add("mail", mail);
@@ -73,7 +77,10 @@ namespace reaktor
                 if (!ok)
                     throw new Exception(req.result["reason"]);
                 else
+                {
                     _token = req.result["token"];
+                    _isLoggedIn = true;
+                }
 
                 return ok;
             }
@@ -111,6 +118,12 @@ namespace reaktor
 
         public Boolean trigger(String trigger, Dictionary<String, String> parameters, Boolean safeMode)
         {
+            if (!_isLoggedIn)
+            {
+                this.login();
+                return false;
+            }
+
             Dictionary<String, String> dict = new Dictionary<String, String>();
             dict.Add("token", _token);
             dict.Add("client", "net");
@@ -145,7 +158,9 @@ namespace reaktor
             Boolean ok = jsonResponse["ok"] == "true" ? true : false;
 
             if (!ok)
-                throw new Exception(jsonResponse["reason"]);
+                triggerFailed(jsonResponse["reason"]);
+            else
+                triggerSucceded(true);
         }
     }
 }

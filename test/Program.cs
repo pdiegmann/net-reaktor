@@ -37,6 +37,16 @@ namespace test
                 Console.WriteLine(key + ": " + dict[key]);
             }
 
+            Dictionary<String, String> dict2 = new Dictionary<String, String>();
+
+            dict2.Add("mail", "test@test.de");
+            dict2.Add("pass", MD5Core.GetHashString("test", Encoding.UTF8).ToLower());
+            Console.WriteLine(MD5Core.GetHashString("test", Encoding.UTF8).ToLower());
+
+            Console.WriteLine(json.toJSON(dict2));
+
+            reaktor.reaktor r = new reaktor.reaktor("test@test.de", "test");
+
             Console.ReadKey();
         }
     }

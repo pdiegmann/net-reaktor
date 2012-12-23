@@ -13,16 +13,18 @@ namespace reaktor
         protected String _content = String.Empty;
         protected String _method = "POST";
         protected HttpWebRequest _request = null;
+        protected Action<Dictionary<String, String>> _callback;
 
-        public reaktorRequest(String url, String content)
+        public reaktorRequest(String url, String content, Action<Dictionary<String, String>> callback)
             : base()
         {
             this._url = url;
             this._content = content;
+            this._callback = callback;
         }
 
-        public reaktorRequest(String url, String content, String method)
-            : this(url, content)
+        public reaktorRequest(String url, String content, String method, Action<Dictionary<String, String>> callback)
+            : this(url, content, callback)
         {
             this._method = method;
         }
@@ -37,21 +39,21 @@ namespace reaktor
             IAsyncResult asr;
             if (_request.Method == "POST")
                 // Start the asynchronous operation to get the request-content
-                asr = _request.BeginGetRequestStream(new AsyncCallback(getRequestCallback), null);
+                asr = _request.BeginGetRequestStream(new AsyncCallback(getRequestCallback), _request);
             else
                 // Start the asynchronous operation to get the response
-                asr = _request.BeginGetResponse(new AsyncCallback(getResponseCallback), null);
+                asr = _request.BeginGetResponse(new AsyncCallback(getResponseCallback), _request);
         }
 
         protected void getRequestCallback(IAsyncResult result)
         {
             HttpWebRequest request = (HttpWebRequest)result.AsyncState;
-
             // End the action
             Stream postStream = request.EndGetRequestStream(result);
 
             // Convert the string into a byte array. 
             byte[] data = Encoding.UTF8.GetBytes(_content);
+            //data = Encoding.UTF8.GetBytes("{\"mail\":\"test@test.de\",\"pass\":\"098f6bcd4621d373cade4e832627b4f6\"}");
 
             // Write to the request stream.
             postStream.Write(data, 0, data.Length);
@@ -81,6 +83,9 @@ namespace reaktor
 
             // interpret JSON
             Dictionary<String, String> dict = json.fromJSON(responseString);
+
+            // call callback
+            _callback(dict);
         }
     }
 }

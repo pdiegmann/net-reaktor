@@ -2,3 +2,4 @@ Z:\Code\net-reaktor\reaktor\bin\Debug\reaktor.dll
 Z:\Code\net-reaktor\reaktor\bin\Debug\reaktor.pdb
 Z:\Code\net-reaktor\reaktor\obj\Debug\reaktor.dll
 Z:\Code\net-reaktor\reaktor\obj\Debug\reaktor.pdb
+Z:\Code\net-reaktor\reaktor\obj\Debug\reaktor.csprojResolveAssemblyReference.cache

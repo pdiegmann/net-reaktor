@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using reaktor;
 
 namespace test
 {
@@ -11,11 +10,11 @@ namespace test
     {
         static void Main(string[] args)
         {
-            JSONConverter json = new JSONConverter();
+            reaktor.JSONConverter json = new reaktor.JSONConverter();
 
             reaktor.reaktor r = new reaktor.reaktor();
             r.loginFailed = loginFailed;
-            r.loginSucceded = loginSuccess;
+            r.loginSucceded = loginSucceded;
             r.login("test@test.de", "test");
 
             Dictionary<String, String> dict = new Dictionary<String, String>();
@@ -25,7 +24,7 @@ namespace test
             Console.ReadKey();
         }
 
-        public static void loginSuccess()
+        public static void loginSucceded()
         {
             Console.WriteLine("Login success!");
         }

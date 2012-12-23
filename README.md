@@ -1,7 +1,9 @@
 net-reaktor
 ===========
 
-.NET-library for reaktor.io
+.NET-library for reaktor.io.
+
+Contains two projects: main and legacy.
 
 Main project supports:
 - .NET Framework (4.0.3+)

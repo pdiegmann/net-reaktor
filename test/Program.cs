@@ -13,41 +13,26 @@ namespace test
         {
             JSONConverter json = new JSONConverter();
 
-            Dictionary<String, String> sub = new Dictionary<String, String>();
-            sub.Add("a", "01");
-            sub.Add("b", "02");
-            sub.Add("c", "03");
+            reaktor.reaktor r = new reaktor.reaktor();
+            r.loginFailed = loginFailed;
+            r.loginSucceded = loginSuccess;
+            r.login("test@test.de", "test");
 
-            Console.WriteLine(json.toJSON(sub));
-
-            Dictionary<String, String> main = new Dictionary<String, String>();
-            main.Add("aa", "1");
-            main.Add("bb", "2");
-            main.Add("cc", json.toJSON(sub));
-            main.Add("dd", "3");
-            main.Add("ee", "4");
-
-            string jsonString = json.toJSON(main);
-            Console.WriteLine(jsonString);
-
-            Dictionary<String, String> dict = json.fromJSON("{ \"aa\": \"01\", \"bb\": \"02\", \"cc\": \"03\" }");
-
-            foreach (String key in dict.Keys)
-            {
-                Console.WriteLine(key + ": " + dict[key]);
-            }
-
-            Dictionary<String, String> dict2 = new Dictionary<String, String>();
-
-            dict2.Add("mail", "test@test.de");
-            dict2.Add("pass", MD5Core.GetHashString("test", Encoding.UTF8).ToLower());
-            Console.WriteLine(MD5Core.GetHashString("test", Encoding.UTF8).ToLower());
-
-            Console.WriteLine(json.toJSON(dict2));
-
-            reaktor.reaktor r = new reaktor.reaktor("test@test.de", "test");
+            Dictionary<String, String> dict = new Dictionary<String, String>();
+            dict.Add("name", "Phil Diegmann");
+            Console.WriteLine("trigger: " + r.trigger("Test", dict, true));
 
             Console.ReadKey();
+        }
+
+        public static void loginSuccess()
+        {
+            Console.WriteLine("Login success!");
+        }
+
+        public static void loginFailed(String reason)
+        {
+            Console.WriteLine("Login failed:! " + reason);
         }
     }
 }

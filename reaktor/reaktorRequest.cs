@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
+using System.Threading;
 
 namespace reaktor
 {
@@ -15,12 +16,23 @@ namespace reaktor
         protected HttpWebRequest _request = null;
         protected Action<Dictionary<String, String>> _callback;
 
+        public Dictionary<String, String> result { get { return _result; } }
+        protected Dictionary<String, String> _result;
+
+        protected ManualResetEvent _asyncState;
+        public ManualResetEvent asyncState { get { return _asyncState; } }
+
         public reaktorRequest(String url, String content, Action<Dictionary<String, String>> callback)
             : base()
         {
             this._url = url;
             this._content = content;
             this._callback = callback;
+        }
+
+        public reaktorRequest(String url, String content)
+            : this(url, content, null)
+        {
         }
 
         public reaktorRequest(String url, String content, String method, Action<Dictionary<String, String>> callback)
@@ -31,18 +43,20 @@ namespace reaktor
 
         public void run()
         {
+            _asyncState = new ManualResetEvent(false);
+
             // create a new request
             _request = (HttpWebRequest) WebRequest.Create(_url);
             _request.Method = _method;
             _request.Accept = "application/json";
+            _request.ContentType = "application/json";
 
-            IAsyncResult asr;
             if (_request.Method == "POST")
                 // Start the asynchronous operation to get the request-content
-                asr = _request.BeginGetRequestStream(new AsyncCallback(getRequestCallback), _request);
+                _request.BeginGetRequestStream(new AsyncCallback(getRequestCallback), _request);
             else
                 // Start the asynchronous operation to get the response
-                asr = _request.BeginGetResponse(new AsyncCallback(getResponseCallback), _request);
+                _request.BeginGetResponse(new AsyncCallback(getResponseCallback), _request);
         }
 
         protected void getRequestCallback(IAsyncResult result)
@@ -50,10 +64,8 @@ namespace reaktor
             HttpWebRequest request = (HttpWebRequest)result.AsyncState;
             // End the action
             Stream postStream = request.EndGetRequestStream(result);
-
             // Convert the string into a byte array. 
             byte[] data = Encoding.UTF8.GetBytes(_content);
-            //data = Encoding.UTF8.GetBytes("{\"mail\":\"test@test.de\",\"pass\":\"098f6bcd4621d373cade4e832627b4f6\"}");
 
             // Write to the request stream.
             postStream.Write(data, 0, data.Length);
@@ -83,9 +95,14 @@ namespace reaktor
 
             // interpret JSON
             Dictionary<String, String> dict = json.fromJSON(responseString);
+            _result = dict;
+            _asyncState.Set();
 
-            // call callback
-            _callback(dict);
+            if (_callback != null)
+            {
+                // call callback
+                _callback(dict);
+            }
         }
     }
 }

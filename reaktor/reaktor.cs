@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security;
+using System.Net;
 
 namespace reaktor
 {
@@ -19,10 +20,10 @@ namespace reaktor
 
         private JSONConverter json = new JSONConverter();
 
-        public delegate void loginSucceded();
-        public delegate void loginFailed(String reason);
-        public delegate void triggerSucceded();
-        public delegate void triggerFailed(String reason);
+        public Action loginSucceded;
+        public Action<String> loginFailed;
+        public Action triggerSucceded;
+        public Action<String> triggerFailed;
 
         public reaktor()
             : base()
@@ -37,25 +38,56 @@ namespace reaktor
             this.login();
         }
 
-        public void login()
+        public Boolean login()
         {
-            this.login(_mail, _password);
+            return this.login(_mail, _password);
         }
-
-        public void login(String mail, String password)
+        public Boolean login(Boolean saveMode)
+        {
+            return this.login(_mail, _password, saveMode);
+        }
+        public Boolean login(String mail, String password)
+        {
+            return this.login(mail, password, true);
+        }
+        public Boolean login(String mail, String password, Boolean saveMode)
         {
             Dictionary<String, String> dict = new Dictionary<String, String>();
 
             dict.Add("mail", mail);
             dict.Add("pass", MD5Core.GetHashString(password, Encoding.UTF8).ToLower());
 
-            reaktorRequest req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict), this.loginCallback);
+            reaktorRequest req = null; 
+            if (saveMode)
+                req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict));
+            else
+                req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict), this.loginCallback);
+            
             req.run();
+
+            if (saveMode)
+            {
+                req.asyncState.WaitOne();
+
+                Boolean ok = req.result["ok"] == "true" ? true : false;
+
+                if (!ok)
+                    throw new Exception(req.result["reason"]);
+
+                return ok;
+            }
+
+            return true;
         }
 
         public void loginCallback(Dictionary<String, String> jsonResponse)
         {
             Boolean ok = jsonResponse["ok"] == "true" ? true : false;
+
+            if (!ok)
+                loginFailed(jsonResponse["reason"]);
+            else
+                loginSucceded();
         }
 
         public void trigger(String trigger) 
@@ -68,12 +100,12 @@ namespace reaktor
             this.trigger(trigger, parameters, false);
         }
 
-        public void trigger(String trigger, Boolean saveMode)
+        public Boolean trigger(String trigger, Boolean saveMode)
         {
-            this.trigger(trigger, null, saveMode);
+            return this.trigger(trigger, null, saveMode);
         }
 
-        public void trigger(String trigger, Dictionary<String, String> parameters, Boolean saveMode)
+        public Boolean trigger(String trigger, Dictionary<String, String> parameters, Boolean saveMode)
         {
             Dictionary<String, String> dict = new Dictionary<String, String>();
             dict.Add("token", _token);
@@ -81,12 +113,34 @@ namespace reaktor
             dict.Add("name", trigger);
             dict.Add("data", json.toJSON(parameters));
 
-            reaktorRequest req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict), triggerCallback);
+            reaktorRequest req = null;
+            if (saveMode)
+                req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict));
+            else
+                req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict), triggerCallback);
+            
             req.run();
+
+            if (saveMode)
+            {
+                req.asyncState.WaitOne();
+                Boolean ok = req.result["ok"] == "true" ? true : false;
+
+                if (!ok)
+                    throw new Exception(req.result["reason"]);
+
+                return ok;
+            }
+
+            return true;
         }
 
         public void triggerCallback(Dictionary<String, String> jsonResponse)
         {
+            Boolean ok = jsonResponse["ok"] == "true" ? true : false;
+
+            if (!ok)
+                throw new Exception(jsonResponse["reason"]);
         }
     }
 }

@@ -93,6 +93,10 @@ namespace reaktor
             // split by colon
             keyValueArray = keyValuePair.Split(':');
             key = keyValueArray[0].Trim();
+            if (key.StartsWith("\""))
+                key = key.Remove(0, 1);
+            if (key.EndsWith("\""))
+                key = key.Remove(key.Length - 1);
             value = String.Empty;
 
             // every not-first colon needs to be inside a string by definition
@@ -100,6 +104,11 @@ namespace reaktor
             {
                 value += keyValueArray[j].Trim();
             }
+
+            if (value.StartsWith("\""))
+                value = value.Remove(0, 1);
+            if (value.EndsWith("\""))
+                value = value.Remove(value.Length - 1);
 
             // add the key-value-pair
             dict.Add(key, value);

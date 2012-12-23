@@ -1,0 +1,8 @@
+Z:\Code\net-reaktor\test\bin\Debug\test.exe.config
+Z:\Code\net-reaktor\test\bin\Debug\test.exe
+Z:\Code\net-reaktor\test\bin\Debug\test.pdb
+Z:\Code\net-reaktor\test\bin\Debug\reaktor.dll
+Z:\Code\net-reaktor\test\bin\Debug\reaktor.pdb
+Z:\Code\net-reaktor\test\obj\Debug\test.csprojResolveAssemblyReference.cache
+Z:\Code\net-reaktor\test\obj\Debug\test.exe
+Z:\Code\net-reaktor\test\obj\Debug\test.pdb

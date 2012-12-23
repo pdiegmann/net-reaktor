@@ -10,14 +10,22 @@ namespace reaktor
         public String toJSON(Dictionary<String, String> dict)
         {
             String json = "{";
+            String value = String.Empty;
 
             // iterate keys and get their values
             foreach (String key in dict.Keys)
             {
-                // append to json
-                json += "\"" + key + "\":\"" + dict[key].Trim() + "\",";
+                value = dict[key].Trim();
+                if (value.StartsWith("{") && value.EndsWith("}"))
+                    // append as sub-items
+                    json += "\"" + key + "\":" + value + ",";
+                else
+                    // append to json
+                    json += "\"" + key + "\":\"" + value + "\",";
             }
 
+            // remove trainlin comma
+            json = json.Remove(json.Length - 1);
             json += "}";
 
             return json;
@@ -26,6 +34,9 @@ namespace reaktor
         public Dictionary<String, String> fromJSON(String json)
         {
             Dictionary<String, String> dict = new Dictionary<String, String>();
+
+            Char[] splits = new Char[1];
+            splits[0] = ',';
 
             if (!String.IsNullOrEmpty(json)) 
             {
@@ -43,7 +54,7 @@ namespace reaktor
                     json = json.TrimEnd();
                 }
 
-                String[] jsonItems = json.Split(',');
+                String[] jsonItems = json.Split(splits, StringSplitOptions.RemoveEmptyEntries);
 
                 // iterate all comma-separeted key-value-pairs
                 for (int i = 0; i < jsonItems.Length; i++)
@@ -55,7 +66,7 @@ namespace reaktor
                         processKeyValuePair(dict, currentPart);
                     }
                     // we splitted inside a string, so do some error-handling
-                    else
+                    else if (i < jsonItems.Length - 1)
                     {
                         // add upcoming parts as long as we do not have a 'working' part
                         do

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Security;
 
 namespace reaktor
 {
@@ -10,12 +11,13 @@ namespace reaktor
         private Boolean _isLoggedIn = false;
         private Boolean _isLoggingEnabled = false;
 
-        private String _baseUrl;
-        public String baseUrl { get { return _baseUrl; } set { _baseUrl = value; } }
+        private String _baseUrl = String.Empty;
         
-        private String _mail;
-        private String _password;
-        private String _token;
+        private String _mail = String.Empty;
+        private String _password = String.Empty;
+        private String _token = String.Empty;
+
+        private JSONConverter json = new JSONConverter();
 
         public void login()
         {
@@ -24,6 +26,13 @@ namespace reaktor
 
         public void login(String mail, String password)
         {
+            Dictionary<String, String> dict = new Dictionary<String, String>();
+
+            dict.Add("mail", mail);
+            dict.Add("pass", MD5Core.GetHash(password).ToString());
+
+            reaktorRequest req = new reaktorRequest(_baseUrl, json.toJSON(dict));
+            req.run();
         }
 
         public void trigger(String trigger) 
@@ -31,7 +40,7 @@ namespace reaktor
             this.trigger(trigger, null, false);
         }
 
-        public void trigger(String trigger, Dictionary<String, dynamic> parameters)
+        public void trigger(String trigger, Dictionary<String, String> parameters)
         {
             this.trigger(trigger, parameters, false);
         }
@@ -41,8 +50,16 @@ namespace reaktor
             this.trigger(trigger, null, saveMode);
         }
 
-        public void trigger(String trigger, Dictionary<String, dynamic> parameters, Boolean saveMode)
+        public void trigger(String trigger, Dictionary<String, String> parameters, Boolean saveMode)
         {
+            Dictionary<String, String> dict = new Dictionary<String, String>();
+            dict.Add("token", _token);
+            dict.Add("save", saveMode ? "true" : "false");
+            dict.Add("name", trigger);
+            dict.Add("data", json.toJSON(parameters));
+
+            reaktorRequest req = new reaktorRequest(_baseUrl, json.toJSON(dict));
+            req.run();
         }
     }
 }

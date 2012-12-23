@@ -42,15 +42,15 @@ namespace reaktor
         {
             return this.login(_mail, _password);
         }
-        public Boolean login(Boolean saveMode)
+        public Boolean login(Boolean safeMode)
         {
-            return this.login(_mail, _password, saveMode);
+            return this.login(_mail, _password, safeMode);
         }
         public Boolean login(String mail, String password)
         {
             return this.login(mail, password, true);
         }
-        public Boolean login(String mail, String password, Boolean saveMode)
+        public Boolean login(String mail, String password, Boolean safeMode)
         {
             Dictionary<String, String> dict = new Dictionary<String, String>();
 
@@ -58,14 +58,14 @@ namespace reaktor
             dict.Add("pass", MD5Core.GetHashString(password, Encoding.UTF8).ToLower());
 
             reaktorRequest req = null; 
-            if (saveMode)
+            if (safeMode)
                 req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict));
             else
                 req = new reaktorRequest(_baseUrl + "/login", json.toJSON(dict), this.loginCallback);
             
             req.run();
 
-            if (saveMode)
+            if (safeMode)
             {
                 req.asyncState.WaitOne();
 
@@ -73,6 +73,8 @@ namespace reaktor
 
                 if (!ok)
                     throw new Exception(req.result["reason"]);
+                else
+                    _token = req.result["token"];
 
                 return ok;
             }
@@ -87,7 +89,10 @@ namespace reaktor
             if (!ok)
                 loginFailed(jsonResponse["reason"]);
             else
+            {
+                _token = jsonResponse["token"];
                 loginSucceded();
+            }
         }
 
         public void trigger(String trigger) 
@@ -105,23 +110,24 @@ namespace reaktor
             return this.trigger(trigger, null, saveMode);
         }
 
-        public Boolean trigger(String trigger, Dictionary<String, String> parameters, Boolean saveMode)
+        public Boolean trigger(String trigger, Dictionary<String, String> parameters, Boolean safeMode)
         {
             Dictionary<String, String> dict = new Dictionary<String, String>();
             dict.Add("token", _token);
-            dict.Add("save", saveMode ? "true" : "false");
+            dict.Add("client", "net");
+            dict.Add("safe", safeMode ? "true" : "false");
             dict.Add("name", trigger);
             dict.Add("data", json.toJSON(parameters));
 
             reaktorRequest req = null;
-            if (saveMode)
+            if (safeMode)
                 req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict));
             else
                 req = new reaktorRequest(_baseUrl + "/trigger", json.toJSON(dict), triggerCallback);
             
             req.run();
 
-            if (saveMode)
+            if (safeMode)
             {
                 req.asyncState.WaitOne();
                 Boolean ok = req.result["ok"] == "true" ? true : false;

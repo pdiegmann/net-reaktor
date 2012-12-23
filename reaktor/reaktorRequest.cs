@@ -12,7 +12,7 @@ namespace reaktor
     {
         protected String _url = String.Empty;
         protected String _content = String.Empty;
-        protected String _method = "POST";
+        protected String _contentType = "application/json";
         protected HttpWebRequest _request = null;
         protected Action<Dictionary<String, String>> _callback;
 
@@ -31,14 +31,20 @@ namespace reaktor
         }
 
         public reaktorRequest(String url, String content)
-            : this(url, content, null)
+            : this(url, content, null, null)
         {
         }
 
-        public reaktorRequest(String url, String content, String method, Action<Dictionary<String, String>> callback)
+        public reaktorRequest(String url, String content, String contentType)
+            : this(url, content, contentType, null)
+        {
+        }
+
+        public reaktorRequest(String url, String content, String contentType, Action<Dictionary<String, String>> callback)
             : this(url, content, callback)
         {
-            this._method = method;
+            if (!String.IsNullOrEmpty(contentType))
+                this._contentType = contentType;
         }
 
         public void run()
@@ -47,9 +53,9 @@ namespace reaktor
 
             // create a new request
             _request = (HttpWebRequest) WebRequest.Create(_url);
-            _request.Method = _method;
+            _request.Method = "POST";
             _request.Accept = "application/json";
-            _request.ContentType = "application/json";
+            _request.ContentType = _contentType;
 
             if (_request.Method == "POST")
                 // Start the asynchronous operation to get the request-content

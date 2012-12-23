@@ -17,7 +17,7 @@ namespace reaktor
             {
                 value = dict[key].Trim();
                 if (value.StartsWith("{") && value.EndsWith("}"))
-                    // append as sub-items
+                    // append as sub-items - NOT SUPPORTED CURRENTLY!
                     json += "\"" + key + "\":" + value + ",";
                 else
                     // append to json
